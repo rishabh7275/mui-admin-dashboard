@@ -1,8 +1,8 @@
-import React from "react";
-import { useMemo, useState } from "react";
+import React, { Suspense, lazy, useMemo, useState } from "react";
 import {
   Alert,
   Box,
+  CircularProgress,
   CssBaseline,
   Snackbar,
   ThemeProvider,
@@ -12,14 +12,15 @@ import { getTheme } from "./theme/theme";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
-import Users from "./pages/Users";
-import Products from "./pages/Products";
-import Orders from "./pages/Orders";
-import Analytics from "./pages/Analytics";
-import Transactions from "./pages/Transactions";
-import Settings from "./pages/Settings";
-import RevenueDetails from "./pages/RevenueDetails";
-import ConversionAnalytics from "./pages/ConversionAnalytics";
+
+const Users = lazy(() => import("./pages/Users"));
+const Products = lazy(() => import("./pages/Products"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Settings = lazy(() => import("./pages/Settings"));
+const RevenueDetails = lazy(() => import("./pages/RevenueDetails"));
+const ConversionAnalytics = lazy(() => import("./pages/ConversionAnalytics"));
 
 export default function App() {
   const [mode, setMode] = useState("dark");
@@ -72,18 +73,26 @@ export default function App() {
             onNotice={showNotice}
           />
           <Box component="main" sx={{ width: "100%", p: { xs: 2, sm: 2.5, md: 3 }, flex: 1 }}>
-            <Routes>
-              <Route path="/" element={<Dashboard onNotice={showNotice} />} />
-              <Route path="/revenue-details" element={<RevenueDetails onNotice={showNotice} />} />
-              <Route path="/conversion-analytics" element={<ConversionAnalytics onNotice={showNotice} />} />
-              <Route path="/users" element={<Users onNotice={showNotice} />} />
-              <Route path="/products" element={<Products onNotice={showNotice} />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/transactions" element={<Transactions />} />
-              <Route path="/settings" element={<Settings onNotice={showNotice} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <Suspense
+              fallback={
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+                  <CircularProgress color="primary" />
+                </Box>
+              }
+            >
+              <Routes>
+                <Route path="/" element={<Dashboard onNotice={showNotice} />} />
+                <Route path="/revenue-details" element={<RevenueDetails onNotice={showNotice} />} />
+                <Route path="/conversion-analytics" element={<ConversionAnalytics onNotice={showNotice} />} />
+                <Route path="/users" element={<Users onNotice={showNotice} />} />
+                <Route path="/products" element={<Products onNotice={showNotice} />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/transactions" element={<Transactions />} />
+                <Route path="/settings" element={<Settings onNotice={showNotice} />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </Box>
         </Box>
       </Box>
