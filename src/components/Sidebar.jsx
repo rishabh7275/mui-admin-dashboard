@@ -12,6 +12,7 @@ import {
   SettingsRounded,
   ShoppingCartRounded,
   WalletRounded,
+  PersonOutlineRounded,
 } from "@mui/icons-material";
 import {
   Box,
@@ -205,8 +206,59 @@ export default function Sidebar({ mobileOpen, setMobileOpen, collapsed, setColla
 
       <Box sx={{ flex: 1 }} />
 
-      {/* Settings Item */}
+      {/* Account & Settings Items */}
       <List sx={{ px: collapsed ? 1 : 1.5, pb: 1, transition: "padding 0.28s cubic-bezier(0.4, 0, 0.2, 1)" }}>
+        <Tooltip
+          title={collapsed ? "Account" : ""}
+          placement="right"
+          arrow
+          disableHoverListener={!collapsed}
+        >
+          <ListItemButton
+            component={NavLink}
+            to="/account"
+            onClick={() => setMobileOpen(false)}
+            sx={{
+              borderRadius: 2.5,
+              mb: 0.5,
+              justifyContent: collapsed ? "center" : "flex-start",
+              px: collapsed ? 0 : 1.6,
+              minHeight: 44,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                bgcolor: isDark ? "rgba(124,77,255,0.10)" : "rgba(124,77,255,0.06)",
+              },
+              "&.active": {
+                bgcolor: isDark ? "rgba(124,77,255,0.18)" : "rgba(124,77,255,0.12)",
+                color: "primary.main",
+                "& .MuiListItemIcon-root": {
+                  color: "primary.main",
+                },
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: collapsed ? 0 : 38,
+                justifyContent: "center",
+                color: "text.secondary",
+              }}
+            >
+              <PersonOutlineRounded fontSize="small" />
+            </ListItemIcon>
+            {!collapsed && (
+              <ListItemText
+                primary="Account"
+                primaryTypographyProps={{
+                  fontSize: "0.88rem",
+                  fontWeight: 650,
+                  noWrap: true,
+                }}
+              />
+            )}
+          </ListItemButton>
+        </Tooltip>
+
         <Tooltip
           title={collapsed ? "Settings" : ""}
           placement="right"

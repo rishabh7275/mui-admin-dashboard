@@ -30,12 +30,19 @@ import {
   useTheme,
 } from "@mui/material";
 import { useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import LogoutDialog from "./LogoutDialog";
 
 const routeMeta = {
   "/": {
     category: "Workspace",
     title: "Business Overview",
     desc: "Monitor revenue, customers and business performance.",
+  },
+  "/account": {
+    category: "Workspace",
+    title: "Account Profile",
+    desc: "Manage personal details, workspace role, and security credentials.",
   },
   "/revenue-details": {
     category: "Analytics",
@@ -75,7 +82,7 @@ const routeMeta = {
   "/settings": {
     category: "Workspace",
     title: "Workspace Settings",
-    desc: "Configure platform settings, admin profiles and account notifications.",
+    desc: "Configure platform settings, appearance mode and notifications.",
   },
 };
 
@@ -89,6 +96,34 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
   const [notifAnchor, setNotifAnchor] = useState(null);
   // Profile menu state
   const [profileAnchor, setProfileAnchor] = useState(null);
+  // Logout confirmation modal state
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const { profile, signOut } = useAuth();
+
+  const handleConfirmLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+      setLogoutDialogOpen(false);
+      onNotice?.("Signed out of session");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  const initials = profile?.fullName
+    ? profile.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "RT";
 
   const currentMeta = routeMeta[location.pathname] || {
     category: "Workspace",
@@ -313,14 +348,14 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
               boxShadow: "0 2px 8px rgba(124, 77, 255, 0.35)",
             }}
           >
-            RT
+            {initials}
           </Avatar>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
             <Typography variant="body2" fontWeight={800} lineHeight={1.2}>
-              Rishabh Tiwari
+              {profile?.fullName || "User"}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Administrator
+              {profile?.role || "Administrator"}
             </Typography>
           </Box>
         </Box>
@@ -332,7 +367,7 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
           slotProps={{
             paper: {
               sx: {
-                width: 220,
+                width: 230,
                 mt: 1.5,
                 borderRadius: 3,
                 boxShadow: isDark ? "0 14px 35px rgba(0,0,0,0.5)" : "0 14px 35px rgba(15,23,42,0.12)",
@@ -342,18 +377,18 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
           }}
         >
           <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="subtitle2" fontWeight={800}>
-              Rishabh Tiwari
+            <Typography variant="subtitle2" fontWeight={800} noWrap>
+              {profile?.fullName || "User"}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              rishabh@example.com
+            <Typography variant="caption" color="text.secondary" noWrap display="block">
+              {profile?.email || "admin@example.com"}
             </Typography>
           </Box>
           <Divider />
           <MenuItem
             onClick={() => {
               setProfileAnchor(null);
-              navigate("/settings");
+              navigate("/account");
             }}
           >
             <ListItemIcon>
@@ -376,7 +411,7 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
           <MenuItem
             onClick={() => {
               setProfileAnchor(null);
-              onNotice("Signed out of session");
+              setLogoutDialogOpen(true);
             }}
             sx={{ color: "error.main" }}
           >
@@ -386,6 +421,14 @@ export default function Topbar({ mode, setMode, onMenu, onNotice, collapsed, set
             <ListItemText primary="Log out" />
           </MenuItem>
         </Menu>
+
+        {/* Logout Confirmation Dialog */}
+        <LogoutDialog
+          open={logoutDialogOpen}
+          onClose={() => setLogoutDialogOpen(false)}
+          onConfirm={handleConfirmLogout}
+          loading={loggingOut}
+        />
       </Toolbar>
     </AppBar>
   );

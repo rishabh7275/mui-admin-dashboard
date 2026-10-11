@@ -11,6 +11,7 @@ export default defineConfig({
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-mui": ["@mui/material", "@mui/icons-material", "@emotion/react", "@emotion/styled"],
           "vendor-recharts": ["recharts"],
+          "vendor-supabase": ["@supabase/supabase-js"],
         },
       },
     },
